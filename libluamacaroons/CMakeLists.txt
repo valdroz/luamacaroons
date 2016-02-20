@@ -1,0 +1,10 @@
+project(luamacaroons)
+cmake_minimum_required(VERSION 2.8)
+aux_source_directory(. SRC_LIST)
+#add_executable(${PROJECT_NAME} ${SRC_LIST})
+add_library(${PROJECT_NAME} SHARED ${SRC_LIST})
+set ( CMAKE_C_FLAGS "-Wpointer-sign")
+link_directories(/usr/local/lib)
+include_directories(/usr/local/include)
+target_link_libraries(${PROJECT_NAME} macaroons lua)
+

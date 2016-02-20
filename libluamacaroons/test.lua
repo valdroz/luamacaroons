@@ -1,0 +1,10 @@
+print("Start")
+local path = "/vagrant/macaroons/libluamacaroons/libluamacaroons.so"
+local init_macaroons = assert(package.loadlib(path, "luaopen_macaroons"))
+init_macaroons()
+M = macaroons.macaroon_create("http://comcast.com","secret","codebig2")
+print(M)
+print("----------------------------------")
+M2 = macaroons.macaroon_add_ceveat(M, "123123234123")
+print(M2)
+print("End")
