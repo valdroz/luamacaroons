@@ -37,7 +37,7 @@ Vagrant.configure(2) do |config|
   # the path on the host to the actual folder. The second argument is
   # the path on the guest to mount the folder. And the optional third
   # argument is a set of non-required options.
-  config.vm.synced_folder ".", "/vagrant_csp"
+  config.vm.synced_folder ".", "/lualibmacaroons"
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
@@ -79,9 +79,23 @@ sudo systemctl disable firewalld 2>/dev/null
 sudo systemctl stop firewalld 2>/dev/null
 sudo yum -y install libsodium
 sudo yum -y install libsodium-devel
+sudo yum -y install lua-devel
 sudo yum -y install libtool
 sudo yum -y install cmake
 sudo yum -y install git
+sudo yum -y install gcc-c++
+cd /lualibmacaroons
+rm -fr libmacaroons
+rm -fr libsodium
+git clone https://github.com/rescrv/libmacaroons.git
+git clone https://github.com/jedisct1/libsodium.git
+cd /lualibmacaroons/libsodium
+autoreconf -i && ./configure && make && sudo make install
+cd /lualibmacaroons/libmacaroons
+export SODIUM_CFLAGS="-L/usr/local/lib/ -lsodium"
+export SODIUM_LIBS="-L/usr/local/lib/"
+autoreconf -i && ./configure && make && sudo make install
+
 #compile lib macaroons
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
 

@@ -1,5 +1,5 @@
 print("Start")
-local path = "/vagrant/macaroons/libluamacaroons/libluamacaroons.so"
+local path = "/lualibmacaroons/libluamacaroons/libluamacaroons.so"
 local init_macaroons = assert(package.loadlib(path, "luaopen_macaroons"))
 init_macaroons()
 M = macaroons.macaroon_create("http://comcast.com","secret","codebig2")
