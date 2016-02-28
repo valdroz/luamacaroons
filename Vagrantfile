@@ -96,9 +96,6 @@ export SODIUM_CFLAGS="-L/usr/local/lib/ -lsodium"
 export SODIUM_LIBS="-L/usr/local/lib/"
 autoreconf -i && ./configure && make && sudo make install
 
-#compile lib macaroons
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
-
 
   SHELL
 end
