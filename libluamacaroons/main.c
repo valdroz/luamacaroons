@@ -32,7 +32,14 @@ static LuaMacaroon *checkMacaroon (lua_State *L) {
     return (LuaMacaroon *)udata;
 }
 
-static int l_mcr_serialize (lua_State *L) {
+static int l_mcr_destroy(lua_State *L) {
+    LuaMacaroon* m = checkMacaroon(L);
+    printf("DEBUG: Macaroon destroy\n");
+    macaroon_destroy(m->m);
+    return 0;
+}
+
+static int l_mcr_serialize(lua_State *L) {
     enum macaroon_returncode ret = 0;
     LuaMacaroon* m = checkMacaroon(L);
     size_t ms_sz = macaroon_serialize_size_hint(m->m);
@@ -157,6 +164,7 @@ static const luaL_Reg lua_exp_macaroolMethods[] = {
     {"deserialize", l_mcr_deserialize},
     {"serialize", l_mcr_serialize},
     {"addcaveat", l_mcr_add_caveat},
+    {"__gc", l_mcr_destroy},
     {NULL, NULL}
 };
 
