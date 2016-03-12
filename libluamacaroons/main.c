@@ -34,9 +34,24 @@ static LuaMacaroon *checkMacaroon (lua_State *L) {
 
 static int l_mcr_destroy(lua_State *L) {
     LuaMacaroon* m = checkMacaroon(L);
-    printf("DEBUG: Macaroon destroy\n");
+//    printf("DEBUG: Macaroon destroy\n");
     macaroon_destroy(m->m);
     return 0;
+}
+
+static int l_mcr_to_string(lua_State *L) {
+    enum macaroon_returncode ret = 0;
+    LuaMacaroon* m = checkMacaroon(L);
+    size_t ms_sz = macaroon_inspect_size_hint(m->m);
+    char* ms = malloc(ms_sz);
+    printf("DEBUG: inspect size: %d\n", (int)ms_sz);
+    macaroon_inspect(m->m, ms, ms_sz, &ret);
+    printf("DEBUG: inspect ret code: %d\n", ret);
+    printf("DEBUG: inspect string: %s\n", ms);
+    //lua_pushstring(L, ms);
+    lua_pushstring(L, "todo here");
+    free(ms);
+    return 1;
 }
 
 static int l_mcr_serialize(lua_State *L) {
@@ -157,13 +172,14 @@ int macaroon_to_string (lua_State *L) {
 // Show registration of class
 static const luaL_Reg lua_exp_macaroolFuncs[] = {
     {"new", l_mcr_new},
+    {"deserialize", l_mcr_deserialize},
     {NULL, NULL}
 };
 
 static const luaL_Reg lua_exp_macaroolMethods[] = {
-    {"deserialize", l_mcr_deserialize},
     {"serialize", l_mcr_serialize},
     {"addcaveat", l_mcr_add_caveat},
+    {"__tostring", l_mcr_to_string},
     {"__gc", l_mcr_destroy},
     {NULL, NULL}
 };

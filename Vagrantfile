@@ -12,7 +12,8 @@ Vagrant.configure(2) do |config|
 
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://atlas.hashicorp.com/search.
-  config.vm.box = "puppetlabs/centos-7.0-64-puppet"
+  #config.vm.box = "puppetlabs/centos-7.0-64-puppet"
+  config.vm.box = "puphpet/centos65-x64"
 
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs
@@ -84,17 +85,19 @@ sudo yum -y install libtool
 sudo yum -y install cmake
 sudo yum -y install git
 sudo yum -y install gcc-c++
+sudo yum -y install libbsd-devel
+ sudo yum -y install vim
 cd /lualibmacaroons
 rm -fr libmacaroons
 rm -fr libsodium
 git clone https://github.com/rescrv/libmacaroons.git
-git clone https://github.com/jedisct1/libsodium.git
-cd /lualibmacaroons/libsodium
-autoreconf -i && ./configure && make && sudo make install
+#git clone https://github.com/jedisct1/libsodium.git
+#cd /lualibmacaroons/libsodium
+#autoreconf -i && ./configure && make && sudo make install
 cd /lualibmacaroons/libmacaroons
-export SODIUM_CFLAGS="-L/usr/local/lib/ -lsodium"
-export SODIUM_LIBS="-L/usr/local/lib/"
-autoreconf -i && ./configure && make && sudo make install
+#export SODIUM_CFLAGS="-L/usr/local/lib/ -lsodium"
+#export SODIUM_LIBS="-L/usr/local/lib/"
+autoreconf -i && ./configure CFLAGS=-std=gnu99 && make && sudo make install
 
 
   SHELL

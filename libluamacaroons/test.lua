@@ -1,11 +1,15 @@
 print("Start")
--- local path = "/lualibmacaroons/libluamacaroons/libluamacaroons.so"
 local path = "./libluamacaroons.so"
 local init_macaroons = assert(package.loadlib(path, "luaopen_macaroons"))
 init_macaroons()
-M = macaroon.new("http://comcast.com","secret","codebig2")
-print(M:serialize())
+
+m = macaroon.new("http://location.com","secret","issuer_id")
+print(m:serialize())
+print(m)
+
 print("----------------------------------")
-M.addcaveat(M, "123123234123")
-print(M:serialize())
+m:addcaveat("id = 123")
+print(m:serialize())
+print(m)
+
 print("End")
