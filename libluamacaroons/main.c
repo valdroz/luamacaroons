@@ -21,12 +21,13 @@ static int l_mcr_new(lua_State *L) {
     
     if ( lmacaroon->m == NULL ) {
         luaL_error(L, "Macaroon create error code [%d]", ret);
+        return 0;
     }
     
     return 1;
 }
 
-static LuaMacaroon *checkMacaroon (lua_State *L) {
+LuaMacaroon *checkMacaroon(lua_State *L) {
     void *udata = luaL_checkudata(L, 1, "Macaroons.macaroon");
     luaL_argcheck(L, udata != NULL, 1, "'Macaroons' expected");
     return (LuaMacaroon *)udata;
@@ -34,7 +35,6 @@ static LuaMacaroon *checkMacaroon (lua_State *L) {
 
 static int l_mcr_destroy(lua_State *L) {
     LuaMacaroon* m = checkMacaroon(L);
-//    printf("DEBUG: Macaroon destroy\n");
     macaroon_destroy(m->m);
     return 0;
 }
@@ -44,12 +44,9 @@ static int l_mcr_to_string(lua_State *L) {
     LuaMacaroon* m = checkMacaroon(L);
     size_t ms_sz = macaroon_inspect_size_hint(m->m);
     char* ms = malloc(ms_sz);
-    printf("DEBUG: inspect size: %d\n", (int)ms_sz);
     macaroon_inspect(m->m, ms, ms_sz, &ret);
-    printf("DEBUG: inspect ret code: %d\n", ret);
-    printf("DEBUG: inspect string: %s\n", ms);
-    //lua_pushstring(L, ms);
-    lua_pushstring(L, "todo here");
+    DEBUG("Inspect returns: %d-%d\n", ret, ret);
+    lua_pushstring(L, ms);
     free(ms);
     return 1;
 }
@@ -67,7 +64,23 @@ static int l_mcr_serialize(lua_State *L) {
 }
 
 static int l_mcr_deserialize(lua_State *L) {
-    return 0;
+    enum macaroon_returncode ret = 0;
+    const char* mstr = luaL_checkstring(L, 1);
+    if ( mstr == NULL ) {
+        luaL_error(L, "Macaroon data required");
+        return 0;
+    }
+    
+    LuaMacaroon *lmacaroon = (LuaMacaroon*)lua_newuserdata(L, sizeof(LuaMacaroon));
+    luaL_getmetatable(L, "Macaroons.macaroon");
+    lua_setmetatable(L, -2);
+    
+    lmacaroon->m = macaroon_deserialize(mstr, &ret);
+    if ( lmacaroon->m == NULL ) {
+        luaL_error(L, "Macaroon cannot be deserialized. Error [%d]", ret);
+        return 0;
+    }
+    return 1;
 }
 
 static int l_mcr_add_caveat (lua_State *L) {
@@ -151,13 +164,6 @@ static int l_macaroon_add_caveat (lua_State *L) {
         lua_pushstring(L, ms);
         free(ms);
     }
-    return 1;
-}
-
-
-
-int macaroon_to_string (lua_State *L) {
-//    lua_pushfstring(L, "array(%d)", a->size);
     return 1;
 }
 

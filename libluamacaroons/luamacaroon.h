@@ -20,6 +20,9 @@
 #include <lauxlib.h>
 
 
+#define DEBUG_ENABLED 0
+
+#define DEBUG(f, s ...) if (DEBUG_ENABLED) { printf("DEBUG: "); printf(f, s);}
 
 
 #endif /* luamacaroon_h */
