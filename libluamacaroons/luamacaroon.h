@@ -6,11 +6,10 @@
 //
 //
 
-#ifndef luamacaroon_h
-#define luamacaroon_h
+#ifndef __luamacaroon_h
+#define __luamacaroon_h
 
 
-#include <stdio.h>
 #include <stdio.h>
 #include <assert.h>
 #include <string.h>
@@ -25,4 +24,4 @@
 #define DEBUG(f, s ...) if (DEBUG_ENABLED) { printf("DEBUG: "); printf(f, s);}
 
 
-#endif /* luamacaroon_h */
+#endif /* __luamacaroon_h */
