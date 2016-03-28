@@ -24,6 +24,8 @@
 #ifndef __macaroon_h
 #define __macaroon_h
 
+#include <lua.h>
+
 #define MACAROON_TBLNAME "Macaroons.Macaroon"
 
 typedef struct {

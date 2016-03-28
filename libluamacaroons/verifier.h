@@ -23,8 +23,13 @@
 #ifndef __verifier_h
 #define __verifier_h
 
+#include <lua.h>
+
 typedef struct {
+    unsigned char ctr;
     struct macaroon_verifier *v;
+    char* gen_func;
+    lua_State* state;
 } LuaMacaroonVerifier;
 
 #define VERIFIER_TBLNAME "Macaroons.Verifier"
@@ -43,5 +48,8 @@ l_mcrv_verify(lua_State *L);
 
 int
 l_mcrv_verify_satisfy_exact(lua_State *L);
+
+int
+l_mcrv_verify_satisfy_general(lua_State *L);
 
 #endif /* __verifier_h */

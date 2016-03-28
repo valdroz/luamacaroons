@@ -1,3 +1,9 @@
+
+function satisfy_general_func(pred)
+	print("Satisfy : " .. tostring(pred))
+	return 0;
+end
+
 print("Start")
 local path = "./libluamacaroons.so"
 -- local path = "./libluamacaroons.dylib"
@@ -20,6 +26,7 @@ m:addcaveat("am > 1000")
 local mser = m:serialize()
 mv:satisfyexact("id = 123")
 mv:satisfyexact("am > 1000")
+mv:satisfygeneral("satisfy_general_func")
 vresult = mv:verify(m, "secret")
 print("Verification with valid secret result : " .. tostring(vresult))
 
@@ -35,7 +42,11 @@ local m_loc = m2:location()
 print("Macaroon Identifier :\"" .. m_id .. "\"")
 print("Macaroon Location   :\"" .. m_loc .. "\"")
 print("----------------------------------")
-print("Instance : " .. tostring(mv))
+local mv2 = MacaroonVerifier.new()
+mv2:satisfygeneral("satisfy_general_func")
+print("Instance : " .. tostring(mv2) .. "; Verification result: " .. tostring(mv2:verify(m2, "secret")))
 
 
 print("End")
+
+

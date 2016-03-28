@@ -51,6 +51,7 @@ static const luaL_Reg lua_exp_verifierFuncs[] = {
 static const luaL_Reg lua_exp_verifierMethods[] = {
     {"verify", l_mcrv_verify},
     {"satisfyexact", l_mcrv_verify_satisfy_exact},
+    {"satisfygeneral", l_mcrv_verify_satisfy_general},
     {"__tostring", l_mcrv_to_string},
     {"__gc", l_mcrv_destroy},
     {NULL, NULL}

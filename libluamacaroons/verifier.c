@@ -39,6 +39,8 @@ l_mcrv_newverifier(lua_State *L) {
     lua_setmetatable(L, -2);
     
     verifier->v = macaroon_verifier_create();
+    verifier->gen_func = NULL;
+    verifier->ctr = 'V';
     
     if ( verifier->v == NULL ) {
         luaL_error(L, "Create Verifier failed");
@@ -52,23 +54,46 @@ int
 l_mcrv_destroy(lua_State *L) {
     LuaMacaroonVerifier* v = check_verifier(L);
     macaroon_verifier_destroy(v->v);
+    if (v->gen_func != NULL) {
+        free(v->gen_func);
+    }
     return 0;
 }
 
 int
 l_mcrv_to_string(lua_State *L) {
     LuaMacaroonVerifier* v = check_verifier(L);
-    lua_pushstring(L, "Verifier");
+    lua_pushfstring(L, "Verifier[%s]", v->gen_func);
     return 1;
 }
 
+int
+general_check(void* vv, const unsigned char* pred, size_t pred_sz) {
+    LuaMacaroonVerifier* v = (LuaMacaroonVerifier*)vv;
+    if (v->ctr == 'V' && v->gen_func != NULL) {
+        lua_getglobal(v->state, v->gen_func);
+        lua_pushlstring(v->state, (const char *)pred, pred_sz);
+        if (lua_pcall(v->state, 1, 1, 0) != 0) {
+            luaL_error(v->state, "Error calling callback function : %s",
+                  lua_tostring(v->state, -1));
+            return -1;
+        }
+        if (!lua_isnumber(v->state, -1)) {
+            luaL_error(v->state, "Callback function must return a number");
+        }
+        int result = lua_tointeger(v->state, -1);
+        lua_pop(v->state, 1);  /* pop returned value */
+        return result;
+    }
+    return 0;
+}
 
 int
 l_mcrv_verify(lua_State *L) {
     enum macaroon_returncode ret = 0;
     
     LuaMacaroonVerifier* v = check_verifier(L);
-    
+    v->state = L;
     void *udata = luaL_checkudata(L, 2, MACAROON_TBLNAME);
     luaL_argcheck(L, udata != NULL, 2, "Macaroon expected");
     LuaMacaroon* m = (LuaMacaroon *)udata;
@@ -79,13 +104,6 @@ l_mcrv_verify(lua_State *L) {
         luaL_error(L, "Secret key required");
         return 0;
     }
-    
-    const char* sgm_name = luaL_checkstring(L, 4);
-    if ( sgm_name != NULL ) {
-        
-        
-    }
-    
     
     struct macaroon* discarge = NULL;
     size_t discharge_size = 0;
@@ -122,6 +140,23 @@ l_mcrv_verify_satisfy_exact(lua_State *L) {
     return 0;
 }
 
-
+int
+l_mcrv_verify_satisfy_general(lua_State *L) {
+    enum macaroon_returncode ret = 0;
+    LuaMacaroonVerifier* v = check_verifier(L);
+    const char* gen_func = luaL_checkstring(L, 2);
+    if ( gen_func == NULL ) {
+        luaL_error(L, "Lua function name required");
+    } else {
+        size_t name_len = strlen(gen_func) + 1;
+        if ( macaroon_verifier_satisfy_general(v->v, general_check, v, &ret) < 0 ) {
+            luaL_error(L, "Macaroon verify exact failed. Error code [%d]", ret);
+            return 0;
+        }
+        v->gen_func = malloc(name_len);
+        strcpy(v->gen_func, gen_func);
+    }
+    return 0;
+}
 
 
